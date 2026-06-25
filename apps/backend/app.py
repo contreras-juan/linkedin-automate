@@ -18,7 +18,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 load_dotenv(PROJECT_ROOT / ".env")
 
 from src.graph import run_workflow  # noqa: E402
-from src.generation import LMStudioClient, LMStudioClientError  # noqa: E402
+from src.generation import LLMClientError, create_llm_client  # noqa: E402
 from src.state import WorkflowConfig, WorkflowState  # noqa: E402
 from apps.backend.src.database import engine, init_db  # noqa: E402
 from apps.backend.src.models import AgentLog, Generation, Post, utc_now  # noqa: E402
@@ -196,12 +196,12 @@ def generate_post(payload: GenerateRequest) -> GenerateResponse:
 @app.post("/api/regenerate", response_model=GenerateResponse)
 def regenerate_post(payload: RegenerateRequest) -> GenerateResponse:
     try:
-        draft = LMStudioClient().generate_chat_completion(
+        draft = create_llm_client().generate_chat_completion(
             messages=_build_regeneration_messages(payload),
             temperature=0.5,
             max_tokens=700,
         )
-    except LMStudioClientError as exc:
+    except LLMClientError as exc:
         raise HTTPException(status_code=502, detail="Regeneration request failed.") from exc
 
     db_post, generation = _persist_regenerated_generation(payload, draft)

@@ -9,7 +9,7 @@ from sqlmodel import Session, delete
 from apps.backend.app import app
 from apps.backend.src.database import engine, init_db
 from apps.backend.src.models import AgentLog, Generation, Post
-from src.generation import LMStudioClientError
+from src.generation import LLMClientError
 from src.state import GeneratedPostRecord, ReviewRecord, WorkflowState
 
 
@@ -114,7 +114,7 @@ def test_generate_endpoint_returns_502_when_workflow_has_errors(monkeypatch) -> 
 
 
 def test_regenerate_endpoint_rewrites_existing_draft(monkeypatch) -> None:
-    class FakeLMStudioClient:
+    class FakeLLMClient:
         def generate_chat_completion(self, messages, temperature, max_tokens):
             assert temperature == 0.5
             assert max_tokens == 700
@@ -122,7 +122,7 @@ def test_regenerate_endpoint_rewrites_existing_draft(monkeypatch) -> None:
             assert "Original draft. #AI" in messages[1]["content"]
             return "Shorter draft with the same core idea. #AI #Agents"
 
-    monkeypatch.setattr("apps.backend.app.LMStudioClient", FakeLMStudioClient)
+    monkeypatch.setattr("apps.backend.app.create_llm_client", lambda: FakeLLMClient())
     monkeypatch.setattr(
         "apps.backend.app._persist_regenerated_generation",
         lambda *_: (SimpleNamespace(id=3), SimpleNamespace(id=4)),
@@ -152,11 +152,11 @@ def test_regenerate_endpoint_rewrites_existing_draft(monkeypatch) -> None:
 
 
 def test_regenerate_endpoint_returns_502_when_llm_fails(monkeypatch) -> None:
-    class FailingLMStudioClient:
+    class FailingLLMClient:
         def generate_chat_completion(self, messages, temperature, max_tokens):
-            raise LMStudioClientError("boom")
+            raise LLMClientError("boom")
 
-    monkeypatch.setattr("apps.backend.app.LMStudioClient", FailingLMStudioClient)
+    monkeypatch.setattr("apps.backend.app.create_llm_client", lambda: FailingLLMClient())
 
     response = TestClient(app).post(
         "/api/regenerate",

@@ -34,6 +34,7 @@ def test_generate_chat_completion_sends_openai_compatible_payload() -> None:
             "temperature": 0.3,
             "max_tokens": 200,
         },
+        headers={"Content-Type": "application/json"},
         timeout=12,
     )
 

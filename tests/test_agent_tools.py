@@ -67,10 +67,14 @@ def test_generate_linkedin_posts_wraps_generation_service() -> None:
     )
     generator_instance = Mock()
     generator_instance.generate_posts.return_value = [post]
+    client = Mock()
 
     with (
-        patch("src.tools.writer_tool.LMStudioClient"),
-        patch("src.tools.writer_tool.LinkedInPostGenerator", return_value=generator_instance),
+        patch("src.tools.writer_tool.create_llm_client", return_value=client),
+        patch(
+            "src.tools.writer_tool.LinkedInPostGenerator",
+            return_value=generator_instance,
+        ) as generator_factory,
     ):
         result = generate_linkedin_posts.invoke(
             {
@@ -79,6 +83,7 @@ def test_generate_linkedin_posts_wraps_generation_service() -> None:
             }
         )
 
+    generator_factory.assert_called_once_with(client=client)
     generator_instance.generate_posts.assert_called_once()
     assert generator_instance.generate_posts.call_args.kwargs == {
         "content_instructions": "Use an executive tone."
