@@ -1,0 +1,130 @@
+{
+  "raw_papers": [
+    {
+      "title": "Learning Action Priors for Cross-embodiment Robot Manipulation",
+      "summary": "Most Vision-Language-Action (VLA) models build on a Vision-Language Model (VLM) backbone by attaching an action module and optimizing the full policy jointly. This design inherits strong visual and linguistic priors from the VLM, but leaves the action module to learn physical motion almost from scratch. As a result, the policy lacks an explicit motion prior, forcing early optimization to simultaneously discover temporal action dynamics and cross-modal alignment, a challenge further amplified in cross-embodiment settings. In this work, we propose to pretrain the action module with motion priors before cross-modal VLA alignment. Specifically, we introduce a two-stage training framework that equips the action module with cross-embodiment temporal motion structure before VLA training begins. In Stage~1, a lightweight flow-matching-based encoder-decoder action module efficiently learns temporal motion structure solely from unconditioned action trajectories, without processing visual or language tokens. In Stage~2, this learned prior is transferred to VLA training through decoder reuse and early-stage latent distillation, aligning visual-language features with the action embedding space while still allowing end-to-end policy refinement. In addition, the trained encoder serves as a compact history compressor, summarizing state-action histories into a single temporal context token for history-aware modeling at negligible cost. Extensive experiments across 13 diverse cross-embodiment tasks on both simulated and real-world platforms validate the effectiveness of our approach. Compared with VLA training without action priors, our model achieves faster convergence, higher success rates, and substantially stronger performance on data-scarce real-world tasks. Moreover, scaling up the action data in Stage~1 yields a more generalizable action prior that directly improves downstream VLA performance.",
+      "published_date": "2026-06-24T17:59:56Z",
+      "arxiv_url": "http://arxiv.org/abs/2606.26095v1",
+      "authors": [
+        "Dong Jing",
+        "Tianqi Zhang",
+        "Jiaqi Liu",
+        "Jinman Zhao",
+        "Zelong Sun",
+        "Li Erran Li",
+        "Zhiwu Lu",
+        "Mingyu Ding"
+      ]
+    },
+    {
+      "title": "RevengeBench: Reverse Engineering Code-Space Policies from Behavioral Experiments",
+      "summary": "For most of scientific history, researchers studying behavior could only infer hidden mechanisms from outward actions: an inverse problem that becomes more tractable when observation is augmented by targeted intervention. We pose a computational analogue: given only behavioral traces of an agent in a game environment, can a learner reconstruct the underlying decision program as executable code, and how much does this reconstruction improve with the ability to design controlled experiments? We introduce RevengeBench, a benchmark of 75 LLM generated, Elo-calibrated policies across five game environments, drawn from CodeClash tournament trajectories. The learner observes the hidden target policy play against sampled opponents and designs behavioral probes in the form of custom opponent policies that elicit informative behavior. It then submits an executable hypothesis, which is evaluated using continuous action-distance metrics. We further validate that recovered code carries informative signal in downstream player-versus-player tournaments. Across twelve frontier LLMs, recovery quality varies substantially (34 to 72% of initial distance closed), with reconstructed policies yielding measurable competitive advantage, particularly for weaker models that otherwise struggle to design effective counter-strategies. Our benchmark positions behavioral recovery of programmatic policies as a tractable inverse problem in code-space, opening a path to opponent modeling, policy interpretability, and the broader question of inferring latent mechanisms from observations.",
+      "published_date": "2026-06-24T17:59:46Z",
+      "arxiv_url": "http://arxiv.org/abs/2606.26094v1",
+      "authors": [
+        "Babak Rahmani",
+        "Sebastian Dziadzio",
+        "Joschka Strüber",
+        "Sergio Hernández-Gutiérrez",
+        "Matthias Bethge"
+      ]
+    },
+    {
+      "title": "On-Policy Self-Distillation with Sampled Demonstrations Reduces Output Diversity",
+      "summary": "On-policy self-distillation achieves strong pass@1 accuracy by using a single model as both teacher and student, with the teacher conditioned on a correct demonstration to provide dense token-level feedback. We show that this could come at a hidden cost: rollout diversity decreases and pass@k curves flatten (i.e., generating more rollouts fails to improve accuracy). We trace this to compounding biases in the design of self-distillation with sampled demonstrations. The teacher scores each student rollout while conditioned on a sampled correct rollout, channeling its feedback through the model's own biases. We theoretically analyze the optimal self-distillation policy and show that it tilts the base distribution by a pointwise conditional mutual information score between the student's rollout and the correct rollout used as context. Unlike the ideal optimal on-policy reinforcement learning (RL), which preserves probability ratios among equally correct rollouts, self-distillation can amplify existing probability gaps, concentrating mass on already-dominant modes. On a controlled graph path-finding task and science question-answering benchmarks, self-distilled models match or exceed RL on average performance but exhibit substantially lower functional and semantic diversity, failing on out-of-distribution settings that require diverse strategies.",
+      "published_date": "2026-06-24T17:59:02Z",
+      "arxiv_url": "http://arxiv.org/abs/2606.26091v1",
+      "authors": [
+        "Andrei Liviu Nicolicioiu",
+        "Mohammad Pezeshki",
+        "Aaron Courville"
+      ]
+    }
+  ],
+  "scored_papers": [
+    {
+      "paper": {
+        "title": "Learning Action Priors for Cross-embodiment Robot Manipulation",
+        "summary": "Most Vision-Language-Action (VLA) models build on a Vision-Language Model (VLM) backbone by attaching an action module and optimizing the full policy jointly. This design inherits strong visual and linguistic priors from the VLM, but leaves the action module to learn physical motion almost from scratch. As a result, the policy lacks an explicit motion prior, forcing early optimization to simultaneously discover temporal action dynamics and cross-modal alignment, a challenge further amplified in cross-embodiment settings. In this work, we propose to pretrain the action module with motion priors before cross-modal VLA alignment. Specifically, we introduce a two-stage training framework that equips the action module with cross-embodiment temporal motion structure before VLA training begins. In Stage~1, a lightweight flow-matching-based encoder-decoder action module efficiently learns temporal motion structure solely from unconditioned action trajectories, without processing visual or language tokens. In Stage~2, this learned prior is transferred to VLA training through decoder reuse and early-stage latent distillation, aligning visual-language features with the action embedding space while still allowing end-to-end policy refinement. In addition, the trained encoder serves as a compact history compressor, summarizing state-action histories into a single temporal context token for history-aware modeling at negligible cost. Extensive experiments across 13 diverse cross-embodiment tasks on both simulated and real-world platforms validate the effectiveness of our approach. Compared with VLA training without action priors, our model achieves faster convergence, higher success rates, and substantially stronger performance on data-scarce real-world tasks. Moreover, scaling up the action data in Stage~1 yields a more generalizable action prior that directly improves downstream VLA performance.",
+        "published_date": "2026-06-24T17:59:56Z",
+        "arxiv_url": "http://arxiv.org/abs/2606.26095v1",
+        "authors": [
+          "Dong Jing",
+          "Tianqi Zhang",
+          "Jiaqi Liu",
+          "Jinman Zhao",
+          "Zelong Sun",
+          "Li Erran Li",
+          "Zhiwu Lu",
+          "Mingyu Ding"
+        ]
+      },
+      "score": 0.2574532450668959,
+      "rationale": "Semantic similarity score: 0.257."
+    }
+  ],
+  "generated_posts": [
+    {
+      "source_title": "Learning Action Priors for Cross-embodiment Robot Manipulation",
+      "source_url": "http://arxiv.org/abs/2606.26095v1",
+      "score": 0.2574532450668959,
+      "content": "🚀 **¿Cómo acelerar la adopción de robots en entornos reales?**  \nEl nuevo trabajo “Learning Action Priors for Cross‑embodiment Robot Manipulation” demuestra que pre‑entrenar el módulo de acción con datos de movimiento, antes de combinar visión y lenguaje, reduce significativamente el tiempo de convergencia y mejora los resultados en tareas prácticas.\n\nEn la mayoría de los modelos Vision‑Language‑Action (VLA) se aprende la política completa a partir de cero. Esto obliga al algoritmo a descubrir simultáneamente la dinámica temporal y la alineación multimodal, un reto mayor cuando el robot cambia de “embodiment” (por ejemplo, brazo robótico vs. humanoide).  \nAl introducir una etapa intermedia que captura la estructura temporal del movimiento mediante un encoder‑decoder ligero, los autores consiguen:\n\n* **Convergencia más rápida** y mayores tasas de éxito en simulaciones y robots reales.\n* Un *compressor de historial* compacto que permite modelar el contexto sin costo computacional adicional.\n* Mejor generalización cuando se escalan los datos de movimiento.\n\nPara la industria, esto significa menos ciclos de entrenamiento, menor dependencia de datos etiquetados y una transición más fluida entre prototipos y producción.  \n#Robótica #AprendizajeAutomático #VisiónYLenguaje #InteligenciaArtificial #InnovaciónIndustrial",
+      "hashtags": [
+        "#Robótica",
+        "#AprendizajeAutomático",
+        "#VisiónYLenguaje",
+        "#InteligenciaArtificial",
+        "#InnovaciónIndustrial"
+      ]
+    }
+  ],
+  "reviews": [
+    {
+      "source_title": "Learning Action Priors for Cross-embodiment Robot Manipulation",
+      "approved": true,
+      "notes": []
+    }
+  ],
+  "events": [
+    {
+      "agent": "researcher",
+      "message": "Fetched recent arXiv papers.",
+      "created_at": "2026-06-25T14:23:09.675157Z",
+      "metadata": {
+        "count": 3,
+        "categories": [
+          "cs.CL",
+          "cs.AI",
+          "cs.LG"
+        ]
+      }
+    },
+    {
+      "agent": "curator",
+      "message": "Scored and filtered papers.",
+      "created_at": "2026-06-25T14:23:13.938067Z",
+      "metadata": {
+        "count": 1,
+        "profile_path": "/home/juan-felipe-contreras/projects/linkedin-automate/config/filter_profile.json"
+      }
+    },
+    {
+      "agent": "writer",
+      "message": "Generated LinkedIn posts.",
+      "created_at": "2026-06-25T14:23:16.607643Z",
+      "metadata": {
+        "count": 1
+      }
+    },
+    {
+      "agent": "reviewer",
+      "message": "Reviewed generated LinkedIn posts.",
+      "created_at": "2026-06-25T14:23:16.608453Z",
+      "metadata": {
+        "approved": 1,
+        "rejected": 0
+      }
+    }
+  ],
+  "errors": []
+}

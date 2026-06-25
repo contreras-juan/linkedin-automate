@@ -1,0 +1,12 @@
+{
+  "name": "ai_automation_linkedin_profile",
+  "interests": [
+    "large language models for practical automation",
+    "natural language processing applications",
+    "AI agents and autonomous workflows",
+    "retrieval augmented generation and semantic search",
+    "machine learning systems useful for content generation"
+  ],
+  "min_score": 0.25,
+  "max_results": 5
+}

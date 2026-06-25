@@ -1,0 +1,15 @@
+[
+  {
+    "source_title": "Learning Action Priors for Cross-embodiment Robot Manipulation",
+    "source_url": "http://arxiv.org/abs/2606.26095v1",
+    "score": 0.2574532450668959,
+    "content": "🚀 **¿Cómo acelerar la adopción de robots en entornos reales?**  \nUn nuevo trabajo, *Learning Action Priors for Cross‑embodiment Robot Manipulation*, demuestra que entrenar primero el módulo de acción con “motion priors” reduce drásticamente el tiempo de convergencia y mejora los resultados en tareas de manipulación cruzada.\n\nEl enfoque se basa en una **doble fase**:  \n1️⃣ En la primera, un encoder‑decoder ligero aprende la estructura temporal del movimiento solo a partir de trayectorias de acción. No necesita visión ni lenguaje, lo que permite usar grandes cantidades de datos sin coste computacional.  \n2️⃣ En la segunda, ese conocimiento se incorpora al modelo Vision‑Language‑Action (VLA) mediante distilación temprana y reutilización del decoder. Así el robot ya dispone de un “skeleton” físico antes de alinearse con las señales visuales y lingüísticas.\n\nEl resultado: convergencia más rápida, mayores tasas de éxito y rendimiento superior incluso en escenarios con pocos datos reales. Este avance facilita la transferencia de robots entre diferentes cuerpos y entornos, acelerando su integración en la industria y el servicio al cliente.  \n\n#Robótica #InteligenciaArtificial #Automatización #MachineLearning #VLM 🌐",
+    "hashtags": [
+      "#Robótica",
+      "#InteligenciaArtificial",
+      "#Automatización",
+      "#MachineLearning",
+      "#VLM"
+    ]
+  }
+]
