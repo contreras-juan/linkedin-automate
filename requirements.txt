@@ -1,0 +1,8 @@
+requests
+pydantic
+pytest
+sentence-transformers
+langchain-core
+langgraph
+fastapi
+uvicorn
