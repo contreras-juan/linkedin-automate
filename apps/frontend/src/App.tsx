@@ -1,14 +1,29 @@
-import { useState } from 'react'
-import { generatePost } from './services/api'
+import { type ReactNode, useState } from 'react'
+import { generatePost, regeneratePost } from './services/api'
 
 function App() {
-  const [instructions, setInstructions] = useState(
-    'Professional but approachable tone. Target audience: AI builders, founders, and product leaders.',
-  )
+  const [formState, setFormState] = useState({
+    instructions:
+      'Professional but approachable tone. Target audience: AI builders, founders, and product leaders.',
+    categories: 'cs.CL, cs.AI, cs.LG',
+    interests:
+      'large language models for practical automation\nAI agents and autonomous workflows\nretrieval augmented generation and semantic search',
+    minScore: 0.18,
+    maxResults: 15,
+    maxCuratedResults: 5,
+    contentType: 'linkedin_post',
+    contentFocus: 'Practical AI automation for technical leaders',
+  })
   const [draft, setDraft] = useState(
     'Your generated LinkedIn draft will appear here after the agents finish researching, curating, writing, and reviewing the post.',
   )
+  const [currentTitle, setCurrentTitle] = useState('Generated LinkedIn draft')
+  const [currentPostId, setCurrentPostId] = useState<number | null>(null)
+  const [regenerationInstructions, setRegenerationInstructions] = useState(
+    'Make it more concise and emphasize the practical takeaway.',
+  )
   const [isLoading, setIsLoading] = useState(false)
+  const [isRegenerating, setIsRegenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   async function handleGeneratePost() {
@@ -16,8 +31,19 @@ function App() {
     setError(null)
 
     try {
-      const response = await generatePost({ instructions })
+      const response = await generatePost({
+        instructions: formState.instructions,
+        categories: parseCommaList(formState.categories),
+        interests: parseLineList(formState.interests),
+        min_score: formState.minScore,
+        max_results: formState.maxResults,
+        max_curated_results: formState.maxCuratedResults,
+        content_type: formState.contentType,
+        content_focus: formState.contentFocus,
+      })
       setDraft(response.draft)
+      setCurrentTitle(response.title)
+      setCurrentPostId(response.post_id)
     } catch (requestError) {
       setError(
         requestError instanceof Error
@@ -26,6 +52,33 @@ function App() {
       )
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  async function handleRegeneratePost() {
+    setIsRegenerating(true)
+    setError(null)
+
+    try {
+      const response = await regeneratePost({
+        draft,
+        instructions: regenerationInstructions,
+        title: currentTitle,
+        content_type: formState.contentType,
+        content_focus: formState.contentFocus,
+        post_id: currentPostId,
+      })
+      setDraft(response.draft)
+      setCurrentTitle(response.title)
+      setCurrentPostId(response.post_id)
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : 'Unable to regenerate the post. Please try again.',
+      )
+    } finally {
+      setIsRegenerating(false)
     }
   }
 
@@ -54,34 +107,100 @@ function App() {
 
         <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <AgentController
-            instructions={instructions}
+            formState={formState}
             isLoading={isLoading}
             error={error}
-            onInstructionsChange={setInstructions}
+            onFormStateChange={setFormState}
             onGeneratePost={handleGeneratePost}
           />
           <LinkedInPreview draft={draft} isLoading={isLoading} />
+          <RegenerationController
+            instructions={regenerationInstructions}
+            isRegenerating={isRegenerating}
+            isDisabled={isLoading || !draft.trim() || !regenerationInstructions.trim()}
+            onInstructionsChange={setRegenerationInstructions}
+            onRegeneratePost={handleRegeneratePost}
+          />
         </section>
       </div>
     </main>
   )
 }
 
-type AgentControllerProps = {
+type RegenerationControllerProps = {
   instructions: string
+  isRegenerating: boolean
+  isDisabled: boolean
+  onInstructionsChange: (value: string) => void
+  onRegeneratePost: () => void
+}
+
+function RegenerationController({
+  instructions,
+  isRegenerating,
+  isDisabled,
+  onInstructionsChange,
+  onRegeneratePost,
+}: RegenerationControllerProps) {
+  return (
+    <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-slate-950/30 lg:col-start-2">
+      <p className="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">
+        Regenerate Draft
+      </p>
+      <p className="mt-3 text-sm leading-6 text-slate-300">
+        Rewrite the current post without re-running research. Use this for edits like
+        “go deeper on X”, “make it shorter”, or “use a more executive tone”.
+      </p>
+      <textarea
+        value={instructions}
+        onChange={(event) => onInstructionsChange(event.target.value)}
+        className="mt-4 min-h-24 w-full resize-none rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-3 text-sm leading-6 text-slate-100 outline-none focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-300/10"
+        placeholder="Example: deepen the section about agent memory and make the intro shorter..."
+      />
+      <button
+        type="button"
+        onClick={onRegeneratePost}
+        disabled={isDisabled}
+        className="mt-4 inline-flex w-full items-center justify-center gap-3 rounded-2xl border border-cyan-300/30 bg-cyan-300/10 px-5 py-3 text-sm font-bold text-cyan-100 transition hover:bg-cyan-300/20 disabled:cursor-not-allowed disabled:border-slate-700 disabled:bg-slate-800 disabled:text-slate-500"
+      >
+        {isRegenerating ? <Spinner /> : null}
+        {isRegenerating ? 'Regenerating...' : 'Regenerate Current Post'}
+      </button>
+    </section>
+  )
+}
+
+type AgentControllerProps = {
+  formState: {
+    instructions: string
+    categories: string
+    interests: string
+    minScore: number
+    maxResults: number
+    maxCuratedResults: number
+    contentType: string
+    contentFocus: string
+  }
   isLoading: boolean
   error: string | null
-  onInstructionsChange: (value: string) => void
+  onFormStateChange: (value: AgentControllerProps['formState']) => void
   onGeneratePost: () => void
 }
 
 function AgentController({
-  instructions,
+  formState,
   isLoading,
   error,
-  onInstructionsChange,
+  onFormStateChange,
   onGeneratePost,
 }: AgentControllerProps) {
+  function updateForm<K extends keyof AgentControllerProps['formState']>(
+    key: K,
+    value: AgentControllerProps['formState'][K],
+  ) {
+    onFormStateChange({ ...formState, [key]: value })
+  }
+
   return (
     <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-slate-950/30">
       <div className="flex items-start justify-between gap-4">
@@ -93,8 +212,8 @@ function AgentController({
             Content Instructions
           </h2>
           <p className="mt-2 text-sm leading-6 text-slate-300">
-            Tell the backend agents how to shape the final LinkedIn post: tone,
-            audience, angle, and constraints.
+            Configure research topics, semantic criteria, and generation style
+            before running the multi-agent workflow.
           </p>
         </div>
         <div className="rounded-2xl border border-cyan-300/20 bg-cyan-300/10 px-3 py-2 text-xs font-medium text-cyan-100">
@@ -110,11 +229,90 @@ function AgentController({
       </label>
       <textarea
         id="instructions"
-        value={instructions}
-        onChange={(event) => onInstructionsChange(event.target.value)}
-        className="mt-3 min-h-56 w-full resize-none rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-4 text-sm leading-6 text-slate-100 outline-none ring-0 transition placeholder:text-slate-500 focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-300/10"
+        value={formState.instructions}
+        onChange={(event) => updateForm('instructions', event.target.value)}
+        className="mt-3 min-h-32 w-full resize-none rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-4 text-sm leading-6 text-slate-100 outline-none ring-0 transition placeholder:text-slate-500 focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-300/10"
         placeholder="Example: friendly tone, CTO audience, focus on practical AI automation..."
       />
+
+      <div className="mt-5 grid gap-4">
+        <Field label="arXiv Categories">
+          <input
+            value={formState.categories}
+            onChange={(event) => updateForm('categories', event.target.value)}
+            className="w-full rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-3 text-sm text-slate-100 outline-none focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-300/10"
+            placeholder="cs.CL, cs.AI, cs.CV"
+          />
+        </Field>
+
+        <Field label="Topics / Semantic Interests">
+          <textarea
+            value={formState.interests}
+            onChange={(event) => updateForm('interests', event.target.value)}
+            className="min-h-32 w-full resize-none rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-3 text-sm leading-6 text-slate-100 outline-none focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-300/10"
+            placeholder="One topic per line: LLM agents, computer vision, robotics..."
+          />
+        </Field>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Field label="Min Score">
+            <input
+              type="number"
+              step="0.01"
+              min="-1"
+              max="1"
+              value={formState.minScore}
+              onChange={(event) => updateForm('minScore', Number(event.target.value))}
+              className="w-full rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-3 text-sm text-slate-100 outline-none focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-300/10"
+            />
+          </Field>
+          <Field label="Search Limit">
+            <input
+              type="number"
+              min="1"
+              max="50"
+              value={formState.maxResults}
+              onChange={(event) => updateForm('maxResults', Number(event.target.value))}
+              className="w-full rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-3 text-sm text-slate-100 outline-none focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-300/10"
+            />
+          </Field>
+          <Field label="Curated Limit">
+            <input
+              type="number"
+              min="1"
+              max="20"
+              value={formState.maxCuratedResults}
+              onChange={(event) =>
+                updateForm('maxCuratedResults', Number(event.target.value))
+              }
+              className="w-full rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-3 text-sm text-slate-100 outline-none focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-300/10"
+            />
+          </Field>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Content Type">
+            <select
+              value={formState.contentType}
+              onChange={(event) => updateForm('contentType', event.target.value)}
+              className="w-full rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-3 text-sm text-slate-100 outline-none focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-300/10"
+            >
+              <option value="linkedin_post">LinkedIn post</option>
+              <option value="technical_summary">Technical summary</option>
+              <option value="founder_insight">Founder insight</option>
+              <option value="thread_outline">Thread outline</option>
+            </select>
+          </Field>
+          <Field label="Content Focus">
+            <input
+              value={formState.contentFocus}
+              onChange={(event) => updateForm('contentFocus', event.target.value)}
+              className="w-full rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-3 text-sm text-slate-100 outline-none focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-300/10"
+              placeholder="Only LLMs, agent systems, computer vision..."
+            />
+          </Field>
+        </div>
+      </div>
 
       {error ? (
         <div className="mt-4 rounded-2xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-100">
@@ -125,7 +323,12 @@ function AgentController({
       <button
         type="button"
         onClick={onGeneratePost}
-        disabled={isLoading || !instructions.trim()}
+        disabled={
+          isLoading ||
+          !formState.instructions.trim() ||
+          parseLineList(formState.interests).length === 0 ||
+          parseCommaList(formState.categories).length === 0
+        }
         className="mt-6 inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-cyan-300 px-5 py-4 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-300/20 transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:bg-slate-600 disabled:text-slate-300 disabled:shadow-none"
       >
         {isLoading ? <Spinner /> : null}
@@ -144,6 +347,15 @@ function AgentController({
         ))}
       </div>
     </section>
+  )
+}
+
+function Field({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <label className="block">
+      <span className="mb-2 block text-sm font-medium text-slate-200">{label}</span>
+      {children}
+    </label>
   )
 }
 
@@ -245,6 +457,20 @@ function Spinner() {
   return (
     <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-950/30 border-t-slate-950" />
   )
+}
+
+function parseCommaList(value: string): string[] {
+  return value
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean)
+}
+
+function parseLineList(value: string): string[] {
+  return value
+    .split('\n')
+    .map((item) => item.trim())
+    .filter(Boolean)
 }
 
 export default App

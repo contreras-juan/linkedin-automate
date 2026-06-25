@@ -6,7 +6,7 @@ from src.agents.curator import curator_node
 from src.agents.researcher import researcher_node
 from src.agents.reviewer import reviewer_node
 from src.agents.writer import writer_node
-from src.state import GeneratedPostRecord, PaperRecord, ScoredPaperRecord, WorkflowState
+from src.state import GeneratedPostRecord, PaperRecord, ScoredPaperRecord, WorkflowConfig, WorkflowState
 
 
 class FakeTool:
@@ -34,12 +34,25 @@ def test_researcher_node_fetches_papers_through_arxiv_tool(monkeypatch) -> None:
 def test_curator_node_scores_raw_papers_through_tool(monkeypatch) -> None:
     fake_tool = FakeTool([{"paper": _paper_payload(), "score": 0.91}])
     monkeypatch.setattr("src.agents.curator.score_papers_by_embedding", fake_tool)
-    state = WorkflowState(raw_papers=[PaperRecord.model_validate(_paper_payload())])
+    state = WorkflowState(
+        raw_papers=[PaperRecord.model_validate(_paper_payload())],
+        config=WorkflowConfig(
+            interests=["computer vision foundation models"],
+            min_score=0.12,
+            max_curated_results=2,
+        ),
+    )
 
     next_state = curator_node(state, profile_path="config/filter_profile.json")
 
     assert fake_tool.payload is not None
     assert fake_tool.payload["profile_path"] == "config/filter_profile.json"
+    assert fake_tool.payload["profile"] == {
+        "name": "dynamic_workflow_profile",
+        "interests": ["computer vision foundation models"],
+        "min_score": 0.12,
+        "max_results": 2,
+    }
     assert next_state.scored_papers[0].score == 0.91
     assert next_state.scored_papers[0].rationale == "Semantic similarity score: 0.910."
     assert next_state.events[-1].agent == "curator"
@@ -57,12 +70,20 @@ def test_writer_node_generates_posts_through_tool(monkeypatch) -> None:
     state = WorkflowState(
         scored_papers=[_scored_paper_record()],
         content_instructions="Use an executive tone.",
+        config=WorkflowConfig(
+            content_type="technical_summary",
+            content_focus="Only LLM systems.",
+        ),
     )
 
     next_state = writer_node(state)
 
     assert fake_tool.payload is not None
-    assert fake_tool.payload["content_instructions"] == "Use an executive tone."
+    assert fake_tool.payload["content_instructions"] == (
+        "Tipo de contenido: technical_summary.\n"
+        "Enfoque temático: Only LLM systems.\n"
+        "Use an executive tone."
+    )
     assert next_state.generated_posts[0].source_title == "Agentic Research"
     assert next_state.generated_posts[0].hashtags == ["#AI", "#Agents"]
     assert next_state.events[-1].agent == "writer"

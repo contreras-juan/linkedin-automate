@@ -28,6 +28,33 @@ def test_score_papers_by_embedding_wraps_filtering_service() -> None:
     assert result == [scored_paper.model_dump(mode="json")]
 
 
+def test_score_papers_by_embedding_accepts_inline_profile() -> None:
+    paper = _paper()
+    scored_paper = ScoredPaper(paper=paper, score=0.8)
+    filter_instance = Mock()
+    filter_instance.filter_papers.return_value = [scored_paper]
+
+    with (
+        patch("src.tools.curator_tool.FilterProfile.from_json_file") as profile_loader,
+        patch("src.tools.curator_tool.SentenceTransformerEmbeddingProvider"),
+        patch("src.tools.curator_tool.EmbeddingPaperFilter", return_value=filter_instance),
+    ):
+        result = score_papers_by_embedding.invoke(
+            {
+                "papers": [paper.model_dump(mode="json")],
+                "profile": {
+                    "name": "dynamic",
+                    "interests": ["computer vision"],
+                    "min_score": 0.1,
+                    "max_results": 2,
+                },
+            }
+        )
+
+    profile_loader.assert_not_called()
+    assert result == [scored_paper.model_dump(mode="json")]
+
+
 def test_generate_linkedin_posts_wraps_generation_service() -> None:
     paper = _paper()
     scored_paper = ScoredPaper(paper=paper, score=0.8)

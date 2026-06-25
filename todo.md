@@ -18,3 +18,10 @@
     - [x] Construir backend con FastAPI
     - [x] Conectar Frontend con Backend
     - [x] Construir utils.sh para levantar servicios
+- [x] Fase 5: Persistencia Backend
+    - [x] Añadir SQLModel y configuración Postgres
+    - [x] Crear modelos `Post`, `Generation` y `AgentLog`
+    - [x] Inicializar tablas al arrancar FastAPI
+    - [x] Exponer endpoints `/api/posts` y `/api/posts/{id}/trace`
+    - [x] Levantar Postgres local con Docker Compose
+    - [x] Crear SQL de inicialización del modelo de datos

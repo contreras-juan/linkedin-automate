@@ -15,10 +15,11 @@ def writer_node(state: WorkflowState) -> WorkflowState:
     if not state.scored_papers:
         return state.with_error("Writer Agent requires scored_papers in WorkflowState.")
 
+    content_instructions = _build_content_instructions(state)
     generated_posts = generate_linkedin_posts.invoke(
         {
             "scored_papers": [paper.model_dump(mode="json") for paper in state.scored_papers],
-            "content_instructions": state.content_instructions,
+            "content_instructions": content_instructions,
         }
     )
     post_records = [GeneratedPostRecord.model_validate(post) for post in generated_posts]
@@ -28,3 +29,19 @@ def writer_node(state: WorkflowState) -> WorkflowState:
         message="Generated LinkedIn posts.",
         metadata={"count": len(post_records)},
     )
+
+
+def _build_content_instructions(state: WorkflowState) -> str | None:
+    instructions = []
+    if state.config.content_type:
+        instructions.append(f"Tipo de contenido: {_strip_trailing_period(state.config.content_type)}.")
+    if state.config.content_focus:
+        instructions.append(f"Enfoque temático: {_strip_trailing_period(state.config.content_focus)}.")
+    if state.content_instructions:
+        instructions.append(state.content_instructions)
+
+    return "\n".join(instructions) if instructions else None
+
+
+def _strip_trailing_period(value: str) -> str:
+    return value.strip().rstrip(".")

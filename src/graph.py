@@ -8,7 +8,6 @@ from langgraph.graph.state import CompiledStateGraph
 
 from src.agents import curator_node, researcher_node, reviewer_node, writer_node
 from src.state import WorkflowState
-from src.tools.arxiv_tool import DEFAULT_RESEARCH_CATEGORIES
 from src.tools.curator_tool import DEFAULT_FILTER_PROFILE_PATH
 
 
@@ -16,8 +15,8 @@ StateNode = Callable[[WorkflowState], WorkflowState]
 
 
 def build_workflow_graph(
-    categories: Sequence[str] = DEFAULT_RESEARCH_CATEGORIES,
-    max_results: int = 10,
+    categories: Sequence[str] | None = None,
+    max_results: int | None = None,
     profile_path: str = DEFAULT_FILTER_PROFILE_PATH,
     researcher: StateNode | None = None,
     curator: StateNode | None = None,
@@ -29,7 +28,13 @@ def build_workflow_graph(
         "researcher",
         _wrap_node(
             researcher
-            or (lambda state: researcher_node(state, categories=categories, max_results=max_results))
+            or (
+                lambda state: researcher_node(
+                    state,
+                    categories=categories or state.config.categories,
+                    max_results=max_results or state.config.max_results,
+                )
+            )
         ),
     )
     workflow.add_node(
@@ -50,8 +55,8 @@ def build_workflow_graph(
 
 def run_workflow(
     initial_state: WorkflowState | None = None,
-    categories: Sequence[str] = DEFAULT_RESEARCH_CATEGORIES,
-    max_results: int = 10,
+    categories: Sequence[str] | None = None,
+    max_results: int | None = None,
     profile_path: str = DEFAULT_FILTER_PROFILE_PATH,
 ) -> WorkflowState:
     graph = build_workflow_graph(

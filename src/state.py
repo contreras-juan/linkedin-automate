@@ -54,10 +54,31 @@ class AgentEvent(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
+class WorkflowConfig(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    categories: list[str] = Field(default_factory=lambda: ["cs.CL", "cs.AI", "cs.LG"])
+    interests: list[str] = Field(
+        default_factory=lambda: [
+            "large language models for practical automation",
+            "natural language processing applications",
+            "AI agents and autonomous workflows",
+            "retrieval augmented generation and semantic search",
+            "machine learning systems useful for content generation",
+        ]
+    )
+    min_score: float = Field(default=0.25, ge=-1.0, le=1.0)
+    max_results: int = Field(default=3, ge=1, le=50)
+    max_curated_results: int = Field(default=5, ge=1, le=20)
+    content_type: str = Field(default="linkedin_post", min_length=1)
+    content_focus: str | None = None
+
+
 class WorkflowState(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     content_instructions: str | None = None
+    config: WorkflowConfig = Field(default_factory=WorkflowConfig)
     raw_papers: list[PaperRecord] = Field(default_factory=list)
     scored_papers: list[ScoredPaperRecord] = Field(default_factory=list)
     generated_posts: list[GeneratedPostRecord] = Field(default_factory=list)

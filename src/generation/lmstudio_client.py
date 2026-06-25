@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from typing import Any, Sequence
 
+from dotenv import load_dotenv
 import requests
 
 
 DEFAULT_LMSTUDIO_BASE_URL = "http://192.168.0.15:1234/v1"
 DEFAULT_LMSTUDIO_MODEL = "local-model"
+load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 
 
 class LMStudioClientError(RuntimeError):

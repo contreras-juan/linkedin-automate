@@ -23,6 +23,12 @@ def curator_node(
         {
             "papers": [paper.model_dump(mode="json") for paper in state.raw_papers],
             "profile_path": profile_path,
+            "profile": {
+                "name": "dynamic_workflow_profile",
+                "interests": state.config.interests,
+                "min_score": state.config.min_score,
+                "max_results": state.config.max_curated_results,
+            },
         }
     )
     scored_records = [
@@ -36,5 +42,10 @@ def curator_node(
     return state.model_copy(update={"scored_papers": scored_records}).with_event(
         agent="curator",
         message="Scored and filtered papers.",
-        metadata={"count": len(scored_records), "profile_path": profile_path},
+        metadata={
+            "count": len(scored_records),
+            "profile_path": profile_path,
+            "interests": state.config.interests,
+            "min_score": state.config.min_score,
+        },
     )

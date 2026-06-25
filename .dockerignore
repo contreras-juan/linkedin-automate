@@ -1,3 +1,4 @@
+.git/
 .venv/
 __pycache__/
 *.py[cod]
@@ -11,6 +12,5 @@ apps/frontend/.vite/
 .env.*
 !.env.example
 
+data/*.json
 *.log
-apps/backend/database.db*
-apps/backend/test.db*
